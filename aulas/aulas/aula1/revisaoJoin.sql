@@ -10,7 +10,7 @@ select * from pedido fetch first 3 rows only; --pega todas as lihnhas que vão a
 select nome, nro_ped from cliente c inner join pedido p on (c.cod_cli = p.cod_cli) --revisão de Join e alias. 
 
 
---Mostrar o nome o número dos pedidos para produtos da categoria sabão
+--Mostrar o nome e o número dos pedidos para produtos da categoria sabão
 select c.nome, p.nro_ped from cliente c, pedido p, produto prod, movimento m --como a coluna nome e nro_ped esté em mais d euma tabela, devo especificar de onde estou puxando
     where c.cod_cli = p.cod_cli --junção  de cliente com e pedido 
         and categoria = 'sabão' --qualifica a consulta
