@@ -28,3 +28,32 @@ create or replace procedure percdesconto(pCodCli IN number, pDesconto OUT float)
         end if;
     end;
 
+--3 – Criar uma procedure media_vendas: Esta procedure recebe como parâmetro o código do cliente e deve retornar o valor médio das vendas do cliente 
+--e a quantidade de vendas do cliente. 
+create or replace procedure media_vendas(mCodCli IN NUMBER, valorMedia OUT FLOAT, quantiVenda OUT NUMBER)
+    is
+    totalValor FLOAT; --> Variável totalValor será um Float
+    begin
+    --pegar o código do cliente 
+    select avg(v.vlvenda), sum(iv.qtde) INTO totalValor, quantiVenda from xvenda v, xitensvenda iv
+        where codcliente = mCodCli  --> "jogo" o valor da média de vlvenda para totalValor e a soma de quantifade de produtos para quantiVenda
+        and v.nnf = iv.nnf 
+        and v.dtvenda = iv.dtvenda;
+    -- Condicional
+        if quantiVenda > 0 then --> Para que o cálculo de média seja feito a quantiVenda tem de ser maior que 0
+            valorMedia := totalValor / quantiVenda; --> valorMedia, que celarei na minha função, recebrá o resultado de totalValor dividido por quantiVenda.
+        else
+            valorMedia := 0;
+        end if;
+    end;
+-- Teste da questão 3
+declare
+    media float;
+    totalItens number;
+begin
+    media_vendas(1, media, totalItens); --> usando minha função, usei o codcliente 1 eas variáveis de declare
+    dbms_output.put_line('Valor médio: ' || media);
+    dbms_output.put_line('Total de itens: ' || totalItens);
+end;
+
+
