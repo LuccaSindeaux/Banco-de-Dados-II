@@ -57,3 +57,17 @@ begin
 end;
 
 
+--4 – Criar uma procedure media_produto: Esta procedure recebe como parâmetro duas datas, uma de início e uma de fim e deve retornar o valor 
+-- médio dos produtos vendidos no período e a soma das quantidades de produto vendido no período.
+create or replace procedure media_produto(beginDate IN DATE, finalDate IN DATE, mediaVenda OUT FLOAT, sumVenda OUT NUMBER)
+    is
+    begin
+        select avg(v.vlvenda), sum(iv.qtde) INTO mediaVenda, sumVenda from xvenda v, xitensvenda iv
+            where v.dtvenda = iv.dtvenda
+            and v.nnf = iv.nnf;
+        
+    end
+
+
+--5 – Criar uma procedure max_vltipopagto: Esta procedure recebe como parâmetro a descrição do tipo de pagamento e retorna o maior valor
+--vendido para o tipo de pagamento informado no parâmetro.
