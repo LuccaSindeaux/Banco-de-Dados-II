@@ -106,15 +106,15 @@ create or replace function retorna_novo_preco(
         SELECT p.preco into precoAtual 
             from xproduto p
             where p.descricaoproduto = descricaoproduto;
-        if qtde = 1 then
+        if qtde_vendida = 1 then
             precoNovo := precoAtual * 1.05;
-        elsif qtd = 2 then
+        elsif qtde_vendida = 2 then
             precoNovo := precoAtual * 1.07;
-        elsif qtde = 3 then
+        elsif qtde_vendida = 3 then
             precoNovo := precoAtual * 1.08;
-        elsif qtde = 4 then
+        elsif qtde_vendida = 4 then
             precoNovo := precoAtual * 1.09;
-        elsif qtde >= 5 then
+        elsif qtde_vendida >= 5 then
             precoNovo := precoAtual * 1.12;
         end if;
         return precoNovo;
