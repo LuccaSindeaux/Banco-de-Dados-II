@@ -1,10 +1,10 @@
---1– Criar uma procedure Aumenta_Produto: Esta procedure recebe como parâmetro o percentual de aumento dos produtos. Essa procedure deve atualizar os preços dos produtos no percentual informado
+--1 Criar uma procedure Aumenta_Produto: Esta procedure recebe como parâmetro o percentual de aumento dos produtos. Essa procedure deve atualizar os preços dos produtos no percentual informado
 create or replace procedure aumenta_produto (percentual IN float) --> Estou falando que o valor é um decimal que possui 5 inteiros com duas caasas deciemais.
     IS
     BEGIN
         update Xproduto set preco = (preco * percentual)/100 + preco; --> o aumento percentual + o próprio preço
     END;
---2 – Criar a função percdesconto, que recebe como parâmetro o código do cliente e deve retornar o percentual de desconto conforme a tabela abaixo:
+--2 Criar a função percdesconto, que recebe como parâmetro o código do cliente e deve retornar o percentual de desconto conforme a tabela abaixo:
 --      Qtd de Itens Comprados  % Desconto
 --                        = 1   5
 --                 > 1 e <= 9   7.5
@@ -28,7 +28,7 @@ create or replace procedure percdesconto(pCodCli IN number, pDesconto OUT float)
         end if;
     end;
 
---3 – Criar uma procedure media_vendas: Esta procedure recebe como parâmetro o código do cliente e deve retornar o valor médio das vendas do cliente 
+--3 Criar uma procedure media_vendas: Esta procedure recebe como parâmetro o código do cliente e deve retornar o valor médio das vendas do cliente 
 --e a quantidade de vendas do cliente. 
 create or replace procedure media_vendas(mCodCli IN NUMBER, valorMedia OUT FLOAT, quantiVenda OUT NUMBER)
     is
@@ -57,7 +57,7 @@ begin
 end;
 
 
---4 – Criar uma procedure media_produto: Esta procedure recebe como parâmetro duas datas, uma de início e uma de fim e deve retornar o valor 
+--4 Criar uma procedure media_produto: Esta procedure recebe como parâmetro duas datas, uma de início e uma de fim e deve retornar o valor 
 -- médio dos produtos vendidos no período e a soma das quantidades de produto vendido no período.
 create or replace procedure media_produto(beginDate IN DATE, finalDate IN DATE, mediaVenda OUT FLOAT, sumVenda OUT NUMBER)
     is
@@ -69,5 +69,59 @@ create or replace procedure media_produto(beginDate IN DATE, finalDate IN DATE, 
     end
 
 
---5 – Criar uma procedure max_vltipopagto: Esta procedure recebe como parâmetro a descrição do tipo de pagamento e retorna o maior valor
+--5 Criar uma procedure max_vltipopagto: Esta procedure recebe como parâmetro a descrição do tipo de pagamento e retorna o maior valor
 --vendido para o tipo de pagamento informado no parâmetro.
+
+
+-- 6 Criar a função retorna_mediageral que retorna a média geral das vendas. 
+create or replace function retorna_mediageral
+    return float is
+    v_media FLOAT;
+    begin
+        select avg(v.vlvenda) 
+        into v_media 
+        from xvenda v;
+        return (v_media);
+    end;
+
+select retorna_mediageral from dual 
+
+-- 7 Criar a função retorna_novo_preco, que recebe como parâmetro a descrição do produto e mediante a quantidade vendida retorna o novo preço do produto, conforme a tabela abaixo:
+
+--Qtd vendida        % Aumento 
+-- 1                    5
+-- 2                    7
+-- 3                    8
+-- 4                    9
+-- 5 ou mais            12
+
+create or replace function retorna_novo_preco(
+    descricaoproduto IN STRING,
+    qtde_vendida IN NUMBER 
+) RETURN FLOAT
+    is
+    precoAtual FLOAT;
+    precoNovo FLOAT;
+    begin
+        SELECT p.preco into precoAtual 
+            from xproduto p
+            where p.descricaoproduto = descricaoproduto;
+        if qtde = 1 then
+            precoNovo := precoAtual * 1.05;
+        elsif qtd = 2 then
+            precoNovo := precoAtual * 1.07;
+        elsif qtde = 3 then
+            precoNovo := precoAtual * 1.08;
+        elsif qtde = 4 then
+            precoNovo := precoAtual * 1.09;
+        elsif qtde >= 5 then
+            precoNovo := precoAtual * 1.12;
+        end if;
+        return precoNovo;
+    end;
+
+--8 Criar a função retorna_valor_pagamento que recebe como parâmetro a descrição do tipo de pagamento e retorna a quantidade de clientes que realizou venda com esse tipo de pagamento.
+
+-- 9 Criar a função retorna_ultimavenda que recebe como parâmetro a descrição do produto e retorna a última data que o produto foi vendido.
+
+--10  Criar a função retorna_menorvenda que retorna o menor valor de venda realizada. 
