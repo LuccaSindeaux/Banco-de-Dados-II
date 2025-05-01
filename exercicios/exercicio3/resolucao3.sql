@@ -71,6 +71,28 @@ create or replace procedure media_produto(beginDate IN DATE, finalDate IN DATE, 
 
 --5 Criar uma procedure max_vltipopagto: Esta procedure recebe como parâmetro a descrição do tipo de pagamento e retorna o maior valor
 --vendido para o tipo de pagamento informado no parâmetro.
+CREATE OR REPLACE PROCEDURE max_vltipopagto (
+    descPag IN VARCHAR2,
+    maiorValor OUT FLOAT
+)
+    IS
+    codPagamento NUMBER;
+    BEGIN
+        SELECT codtppagamento INTO codPagamento
+        FROM Xtipospagamento
+        WHERE UPPER(descricaotppagamento) = UPPER(descPag);
+
+        SELECT MAX(vlvenda) INTO maiorValor
+        FROM Xvenda
+        WHERE codtppagamento = codPagamento;
+    END;
+    --testei
+    DECLARE
+    v_maior FLOAT;
+    BEGIN
+        max_vltipopagto('Dinheiro', v_maior);
+        DBMS_OUTPUT.PUT_LINE('Maior venda com Dinheiro: ' || v_maior);
+    END;
 
 
 -- 6 Criar a função retorna_mediageral que retorna a média geral das vendas. 
@@ -120,8 +142,55 @@ create or replace function retorna_novo_preco(
         return precoNovo;
     end;
 
---8 Criar a função retorna_valor_pagamento que recebe como parâmetro a descrição do tipo de pagamento e retorna a quantidade de clientes que realizou venda com esse tipo de pagamento.
+--8 Criar a função retorna_valor_pagamento que recebe como parâmetro a descrição do tipo de pagamento 
+--e retorna a quantidade de clientes que realizou venda com esse tipo de pagamento.
+CREATE OR REPLACE FUNCTION retorna_valor_pagamento(
+    descPag IN VARCHAR2)
+    RETURN NUMBER
+    IS
+        qtdClientes NUMBER;
+        CodPagamento NUMBER;
+    BEGIN
+        select tp.codtppagamento INTO CodPagamento from Xtipospagamento tp
+        where descricaotppagamento = descPag;
 
+        select COUNT(DISTINCT codcliente) INTO qtdClientes
+        from Xvenda
+        where codtppagamento = codPagamento;
+
+        RETURN qtdClientes;
+    END;
+
+    -- testandpo
+    SELECT retorna_valor_pagamento('Dinheiro') FROM dual;
 -- 9 Criar a função retorna_ultimavenda que recebe como parâmetro a descrição do produto e retorna a última data que o produto foi vendido.
+create or replace function retorna_ultimavenda( descProd IN VARCHAR2)
+    RETURN DATE
+    IS
+        ultimaData DATE;
+        codProd NUMBER;
+    BEGIN
+        select codproduto into codProd from xproduto
+        where UPPER(descricaoproduto) = UPPER(descProd);
+
+        select MAX(dtvenda) into ultimaData from xitensvenda
+        where codproduto = codProd;
+
+        return ultimaData;
+    END;
+
+    --testando
+    SELECT retorna_ultimavenda('Sabonete Palmolive') FROM dual;
 
 --10  Criar a função retorna_menorvenda que retorna o menor valor de venda realizada. 
+create or replace function retorna_menorvenda
+    return FLOAT 
+    is
+    menorValor FLOAT;
+    begin
+        select MIN(vlvenda) INTO menorValor from xvenda;
+
+        return menorValor;
+    end;
+    -- testando
+    SELECT retorna_menorvenda FROM dual;
