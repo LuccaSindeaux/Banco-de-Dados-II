@@ -22,3 +22,52 @@ EXCEPTION
  WHEN OTHERS THEN
  DBMS_OUTPUT.PUT_LINE('Erro: ' || SQLERRM);
 END;
+
+
+
+--Desafio
+
+-- Primeira execução - criação da tabela temporária
+CREATE GLOBAL TEMPORARY TABLE TMP_CLIENTE (
+    COD_CLI VARCHAR2(10),
+    NOME VARCHAR2(40)
+) ON COMMIT DELETE ROWS;
+
+--Procedure em si, segunda execução
+CREATE OR REPLACE PROCEDURE listar_cliente_usar_tabela_temp AS
+    v_sql_insert VARCHAR2(4000);
+    vcodcli VARCHAR2(10);
+    vnome   VARCHAR2(40);
+
+    CURSOR cC1 IS
+        SELECT cod_cli, nome FROM TMP_CLIENTE ORDER BY cod_cli;
+
+BEGIN
+    -- Inserir dados na tabela temporária
+    v_sql_insert := '
+        INSERT INTO TMP_CLIENTE (cod_cli, nome)
+        SELECT cod_cli, nome FROM cliente ';
+    EXECUTE IMMEDIATE v_sql_insert;
+
+    -- Abrir o cursor
+    OPEN cC1;
+    LOOP
+        FETCH cC1 INTO vcodcli, vnome;
+        EXIT WHEN cC1%NOTFOUND;
+
+        DBMS_OUTPUT.PUT_LINE('**');
+        DBMS_OUTPUT.PUT_LINE('ID: ' || vcodcli);
+        DBMS_OUTPUT.PUT_LINE('Nome: ' || vnome);
+
+    END LOOP;
+    CLOSE cC1;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Erro: ' || SQLERRM);
+
+END;
+--Executar separado por último
+BEGIN
+    listar_cliente_usar_tabela_temp;
+END;
