@@ -1,14 +1,13 @@
 create or replace procedure PrcTesteCursor_WHILE is
 --Declarando as variáveis que serão manipuladas
-vCod_cli varchar2(10);
-vNome varchar2(40);
-vID int := 1;
+    vCod_cli varchar2(10);
+    vNome varchar2(40);
+    vID int := 1;
 --Criando o cursor que fará um select na tabela de clientes...
 cursor cC1 is
-SELECT cod_cli, nome FROM CLIENTE ORDER BY cod_cli;
-begin
-dbms_output.put_line('*****EXEMPLO DE LAÇO USANDO WHILE LOOP- END 
-LOOP*****');
+    SELECT cod_cli, nome FROM CLIENTE ORDER BY cod_cli;
+    begin
+    dbms_output.put_line('*****EXEMPLO DE LAÇO USANDO WHILE LOOP- END LOOP*****');
 --Exemplo de Laço do tipo WHILE LOOP - END LOOP
 --Abrindo o cursor
 open cC1;

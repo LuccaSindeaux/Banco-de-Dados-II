@@ -6,7 +6,31 @@
 -- Criar um cursor com o código do produto, descrição do produto e quantidade de produto vendido 
 -- (coluna qtde da tabela xitensvenda). Inserir na tabela de acumproduto.
 
-create or replace procedure
+create global temporary table acumproduto(
+    codproduto int not null PRIMARY KEY,
+    descricaoproduto varchar(50) not null,
+    qtde float not null
+)
+
+CREATE OR REPLACE PROCEDURE gerar_acumproduto IS
+    CURSOR cursor_acumproduto IS
+        SELECT p.codproduto, p.descricaoproduto, SUM(iv.qtde) AS quantidade_total
+        FROM xproduto p, xitensvenda iv
+        WHERE p.codproduto = iv.codproduto
+        GROUP BY p.codproduto, p.descricaoproduto;
+BEGIN
+    DELETE FROM acumproduto;
+
+    FOR rec IN cursor_acumproduto LOOP
+        INSERT INTO acumproduto (codproduto, descricaoproduto, qtde)
+        VALUES (rec.codproduto, rec.descricaoproduto, rec.quantidade_total);
+    END LOOP;
+END;
+
+
+begin
+    gerar_acumproduto;
+end;
 
 -- 2 – Criar uma tabela de produto_novo com a seguinte estrutura 
 -- descricaoproduto   varchar(50)  not null
