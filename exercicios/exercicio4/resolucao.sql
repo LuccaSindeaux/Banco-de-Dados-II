@@ -6,7 +6,7 @@
 -- Criar um cursor com o código do produto, descrição do produto e quantidade de produto vendido 
 -- (coluna qtde da tabela xitensvenda). Inserir na tabela de acumproduto.
 
-create global temporary table acumproduto(
+create table acumproduto(
     codproduto int not null PRIMARY KEY,
     descricaoproduto varchar(50) not null,
     qtde float not null
@@ -17,21 +17,21 @@ CREATE OR REPLACE PROCEDURE gerar_acumproduto IS
         SELECT p.codproduto, p.descricaoproduto, SUM(iv.qtde) AS quantidade_total
         FROM xproduto p, xitensvenda iv
         WHERE p.codproduto = iv.codproduto
-        GROUP BY p.codproduto, p.descricaoproduto;
+        GROUP BY p.codproduto, p.descricaoproduto
+        ORDER BY p.codproduto;
 BEGIN
     DELETE FROM acumproduto;
-
     FOR rec IN cursor_acumproduto LOOP
         INSERT INTO acumproduto (codproduto, descricaoproduto, qtde)
         VALUES (rec.codproduto, rec.descricaoproduto, rec.quantidade_total);
     END LOOP;
 END;
 
-
 begin
     gerar_acumproduto;
 end;
 
+select * from acumproduto
 -- 2 – Criar uma tabela de produto_novo com a seguinte estrutura 
 -- descricaoproduto   varchar(50)  not null
 -- preco              float        not null 
@@ -43,7 +43,20 @@ end;
 -- o preço do produto for superior a R$ 2,00 aumentar o preço do produto para 15% na tabela de 
 -- produto.
 
-create or replace procedure
+CREATE TABLE produto_novo(
+    descricaoproduto varchar(50) not null PRIMARY KEY,
+    preco float not null,
+    preco_aumento float not null
+)
+
+CREATE OR REPLACE PROCEDURE alteracao_preco IS
+    CURSOR cursor_preco_novo IS
+        SELECT codproduto, descricaoproduto, preco
+        FROM xproduto;
+    BEGIN
+
+    END;
+
 
 -- 3 – Criar uma tabela de nova_venda com a seguinte estrutura 
 -- nnf                 integer  not null
