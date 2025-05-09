@@ -5,33 +5,33 @@
 -- pk – codproduto           
 -- Criar um cursor com o código do produto, descrição do produto e quantidade de produto vendido 
 -- (coluna qtde da tabela xitensvenda). Inserir na tabela de acumproduto.
-
 create table acumproduto(
     codproduto int not null PRIMARY KEY,
     descricaoproduto varchar(50) not null,
     qtde float not null
 )
 
-CREATE OR REPLACE PROCEDURE gerar_acumproduto IS
-    CURSOR cursor_acumproduto IS
-        SELECT p.codproduto, p.descricaoproduto, SUM(iv.qtde) AS quantidade_total
-        FROM xproduto p, xitensvenda iv
-        WHERE p.codproduto = iv.codproduto
-        GROUP BY p.codproduto, p.descricaoproduto
-        ORDER BY p.codproduto;
-BEGIN
-    DELETE FROM acumproduto;
-    FOR rec IN cursor_acumproduto LOOP
-        INSERT INTO acumproduto (codproduto, descricaoproduto, qtde)
-        VALUES (rec.codproduto, rec.descricaoproduto, rec.quantidade_total);
-    END LOOP;
-END;
+create or repçace procedure gerar_acumproduto IS
+    cursor cursor_acumproduto IS
+        select p.codproduto, p.descricaoproduto, SUM(iv.qtde) AS quantidade_total
+        from xproduto p, xitensvenda iv
+        where p.codproduto = iv.codproduto
+        group by p.codproduto, p.descricaoproduto
+        order by p.codproduto;
+begin
+   delete from acumproduto;
+    for rec in cursor_acumproduto loop
+        insert into acumproduto (codproduto, descricaoproduto, qtde)
+        values (rec.codproduto, rec.descricaoproduto, rec.quantidade_total);
+    end loop;
+end;
 
 begin
     gerar_acumproduto;
 end;
 
 select * from acumproduto
+
 -- 2 – Criar uma tabela de produto_novo com a seguinte estrutura 
 -- descricaoproduto   varchar(50)  not null
 -- preco              float        not null 
@@ -42,22 +42,35 @@ select * from acumproduto
 -- 2,00, inserir na tabela produto_novo o nome do produto, preço atual e preço com 10% de aumento. Se 
 -- o preço do produto for superior a R$ 2,00 aumentar o preço do produto para 15% na tabela de 
 -- produto.
-
-CREATE TABLE produto_novo(
+create table produto_novo(
     descricaoproduto varchar(50) not null PRIMARY KEY,
     preco float not null,
     preco_aumento float not null
 )
 
-CREATE OR REPLACE PROCEDURE alteracao_preco IS
-    CURSOR cursor_preco_novo IS
-        SELECT codproduto, descricaoproduto, preco
-        FROM xproduto;
-    BEGIN
 
-    END;
+create or replace procedure alterar_preco_prod IS
+    cursor cursor_alterar_preco IS
+    select preco, descricaoproduto from xproduto;
 
+    valor_novo FLOAT; 
+    begin
+        for valor in cursor_alterar_preco loop
+            if valor.preco < 2.00 then
+            valor_novo:= ROUND(valor.preco *1.10,2);
+            else
+            valor_novo := ROUND(valor.preco *1.15,2);
+            end if;    
+                insert into produto_novo (descricaoproduto, preco, preco_aumento)
+                values (valor.descricaoproduto, valor.preco, valor_novo);
+        end loop;
+    end;
+--delete from produto_novo
+begin
+    alterar_preco_prod;
+end;
 
+select * from produto_novo
 -- 3 – Criar uma tabela de nova_venda com a seguinte estrutura 
 -- nnf                 integer  not null
 -- dtvenda             date     not null 
@@ -71,4 +84,40 @@ CREATE OR REPLACE PROCEDURE alteracao_preco IS
 -- valor da venda e valor com 10% de desconto. Se o valor da venda for inferior a R$ 10,00 inserir todos 
 -- os dados, mas com valor de desconto de 8% (inserir na tabela nova_venda).
 
-create or replace procedure
+create table nova_venda(
+    nnf INTEGER not null,
+    dtvenda DATE not null,
+    vlvenda FLOAT not null,
+    vlvenda_desconto FLOAT not null,
+    PRIMARY KEY(nnf, dtvenda)
+)
+
+create or replace procedure procedure_desconto; IS
+    cursor desconto_cursor IS
+    select nnf, dtvenda, vlvenda from xvenda;
+    valor_comdesconto FLOAT;
+    begin
+        for valor in desconto_cursor loop
+            if valor.vlvenda > 10.00 then
+                valor_comdesconto := ROUND(valor.vlvenda * 0.90,2);
+            else
+                valor_comdesconto := ROUND(valor.vlvenda *0.92,2);
+            end if;
+            insert into nova_venda(nnf, dtvenda, vlvenda, vlvenda_desconto)
+                values(valor.nnf, valor.dtvenda, valor.vlvenda, valor_comdesconto);
+        end loop;
+    end;
+
+begin
+    procedure_desconto;
+end;
+
+select * from nova_venda;
+  
+ 
+
+
+   
+   
+
+
